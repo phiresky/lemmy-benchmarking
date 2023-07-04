@@ -20,12 +20,14 @@ indexmap = "2"
 lemmy_utils = { version = "0.18.1-rc.4", path = "../lemmy/crates/utils" }
 mime = "0"
 pin-project = "1"
+procfs = "0.15.1"
 rand = "0"
 serde = "1"
 serde_json = "1"
 time = { version = "0", features = ["serde"] }
 tokio = {version = "1", features = ["full"] }
 tokio-stream = "0"
+tokio-util = "0.7.8"
 tracing = "0"
 tracing-subscriber = "0"
 url = "2"
