@@ -1,0 +1,84 @@
+version: "3.7"
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: 4
+
+services:
+  pictrs:
+    image: asonix/pictrs:0.4.0-beta.19
+    # this needs to match the pictrs url in lemmy.hjson
+    hostname: pictrs
+    # we can set options to pictrs like this, here we set max. image size and forced format for conversion
+    # entrypoint: /sbin/tini -- /usr/local/bin/pict-rs -p /mnt -m 4 --image-format webp
+    environment:
+      - PICTRS_OPENTELEMETRY_URL=http://otel:4137
+      - PICTRS__API_KEY=API_KEY
+      - RUST_LOG=debug
+      - RUST_BACKTRACE=full
+      - PICTRS__MEDIA__VIDEO_CODEC=vp9
+      - PICTRS__MEDIA__GIF__MAX_WIDTH=256
+      - PICTRS__MEDIA__GIF__MAX_HEIGHT=256
+      - PICTRS__MEDIA__GIF__MAX_AREA=65536
+      - PICTRS__MEDIA__GIF__MAX_FRAME_COUNT=400
+    user: 991:991
+    volumes:
+      - ./volumes/pictrs:/mnt:Z
+    restart: always
+    logging: *default-logging
+  postgres:
+    image: postgres:15-alpine
+    # this needs to match the database host in lemmy.hson
+    # Tune your settings via
+    # https://pgtune.leopard.in.ua/#/
+    # You can use this technique to add them here
+    # https://stackoverflow.com/a/30850095/1655478
+    hostname: postgres
+    command:
+      [
+        "postgres",
+        "-c", "shared_preload_libraries=auto_explain,pg_stat_statements",
+        "-c", "pg_stat_statements.track=all", # also track nested statements
+        "-c", "auto_explain.log_min_duration=100ms",
+        # "-c", "auto_explain.log_analyze=true", # warning! impacts perforance according to https://www.postgresql.org/docs/current/auto-explain.html#id-1.11.7.13.5
+        "-c", "track_activity_query_size=1048576",
+        "-c", "max_connections=200",
+        "-c", "logging_collector=on",
+        "-c", "log_rotation_size=1GB",
+        "-c", "synchronous_commit=off",
+        "-c", "log_min_duration_statement=10ms",
+        # "-c", "log_statement=all",
+        "-c", "shared_buffers=4GB",
+        "-c", "effective_cache_size=12GB",
+        "-c", "maintenance_work_mem=1GB",
+        "-c", "checkpoint_completion_target=0.9",
+        "-c", "wal_buffers=16MB",
+        "-c", "default_statistics_target=100",
+        "-c", "random_page_cost=1.1",
+        "-c", "effective_io_concurrency=200",
+        "-c", "work_mem=5242kB",
+        "-c", "min_wal_size=1GB",
+        "-c", "max_wal_size=4GB",
+        "-c", "max_worker_processes=8",
+        "-c", "max_parallel_workers_per_gather=4",
+        "-c", "max_parallel_workers=8",
+        "-c", "max_parallel_maintenance_workers=4",
+      ]
+    user: $DOCKER_USER
+    ports:
+      # use a different port so it doesnt conflict with potential postgres db running on the host
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=lemmy
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=lemmy
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data:Z
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U lemmy -d lemmy"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
