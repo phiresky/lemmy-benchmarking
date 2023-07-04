@@ -6,27 +6,27 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.3.1"
-anyhow = "1.0.71"
-async-stream = "0.3.5"
-async-trait = "0.1.68"
-clap = { version = "4.3.8", features = ["derive"] }
-diesel = "2.1.0"
-diesel-async = { version = "0.3.1", features = ["postgres"] }
-futures = "0.3.28"
-futures-core = "0.3.28"
-indexmap = "2.0.0"
-lemmy_db_schema = { version = "0.18.1-rc.4", path = "../lemmy/crates/db_schema" }
+activitypub_federation = { version = "0", path = "../activitypub-federation-rust" }
+actix-web = "4"
+anyhow = "1"
+async-stream = "0"
+async-trait = "0"
+clap = { version = "4", features = ["derive"] }
+diesel = { version = "2", features = ["postgres", "serde_json"] }
+diesel-async = { version = "0", features = ["postgres"] }
+futures = "0"
+futures-core = "0"
+indexmap = "2"
 lemmy_utils = { version = "0.18.1-rc.4", path = "../lemmy/crates/utils" }
-mime = "0.3.17"
-pin-project = "1.1.2"
-rand = "0.8.5"
-serde = "1.0.166"
-serde_json = "1.0.99"
-time = { version = "0.3.22", features = ["serde"] }
-tokio = "1.29.1"
-tokio-stream = "0.1.14"
-tracing = "0.1.37"
-tracing-subscriber = "0.3.17"
-url = "2.4.0"
-zstd = "0.12.3"
+mime = "0"
+pin-project = "1"
+rand = "0"
+serde = "1"
+serde_json = "1"
+time = { version = "0", features = ["serde"] }
+tokio = {version = "1", features = ["full"] }
+tokio-stream = "0"
+tracing = "0"
+tracing-subscriber = "0"
+url = "2"
+zstd = "0"

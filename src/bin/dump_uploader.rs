@@ -9,7 +9,7 @@ use async_trait::async_trait;
 use clap::{arg, Parser};
 use diesel::QueryableByName;
 use diesel_async::{RunQueryDsl, AsyncPgConnection, AsyncConnection};
-use integration_testing::{import_zstd_json_dump, jsonld_context, DontCareActixError, ToApub};
+use lemmy_benchmarking::{import_zstd_json_dump, jsonld_context, DontCareActixError, ToApub};
 use serde::Serialize;
 use serde_json::json;
 use std::{fs::File, path::Path, pin, str::FromStr, time::Instant};
@@ -231,11 +231,10 @@ async fn main() -> Result<()> {
 
   let db_stats = {
     use diesel::dsl::sql_query;
-    use lemmy_db_schema::utils::get_database_url;
     let settings = lemmy_utils::settings::SETTINGS.to_owned();
 
     // Run the DB migrations
-    let db_url = get_database_url(Some(&settings));
+    let db_url = settings.get_database_url();
     // run_migrations(&db_url);
 
     // Set up the connection pool

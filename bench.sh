@@ -2,7 +2,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-outroot=runs
+cd $(dirname $0)
+
+sourcedir=../lemmy
+outroot=results/runs
 runname="$1"
 run="$(date -Is)-$runname"
 rundir=$outroot/$run
@@ -12,8 +15,10 @@ if [[ ! -f $flamegraph/flamegraph.pl ]]; then
     exit 1
 fi
 
+pushd $sourcedir
+    cargo build --release
+popd
 cargo build --release
-cargo build -p integration_testing --release
 
 echo "run: $run"
 pushd docker
@@ -27,7 +32,7 @@ popd
 mkdir -p $rundir
 perffile=$rundir/perf.data
 RUST_LOG=warn LEMMY_ALLOW_HTTP=1 perf record --freq=99 --output $perffile --call-graph dwarf -- \
-    target/release/lemmy_server > $rundir/server.log &
+    $sourcedir/target/release/lemmy_server > $rundir/server.log &
 SERVERPID=$!
 trap "kill $SERVERPID" EXIT
 
@@ -38,7 +43,7 @@ done
 echo server up
 
 
-RUST_LOG=warn target/release/dump_uploader --remote-server http://lemmy.localhost:8536/inbox \
+RUST_LOG=warn $sourcedir/target/release/dump_uploader --remote-server http://lemmy.localhost:8536/inbox \
     --input-file crates/integration_testing/dump.jsonl.zst --output-json $rundir/info.json \
     --runname $runname \
     > $rundir/upload.log

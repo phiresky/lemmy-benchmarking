@@ -4,7 +4,7 @@ use clap::Parser;
 use futures::StreamExt;
 use futures_core::stream::Stream;
 use indexmap::IndexSet;
-use integration_testing::{import_zstd_json_dump, jsonld_context, ToApub};
+use lemmy_benchmarking::{import_zstd_json_dump, jsonld_context, ToApub};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::json;

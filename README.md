@@ -1,5 +1,7 @@
 # Lemmy Benchmarking
 
+![teaser screenshot](teaser.png)
+
 Rust code that instruments lemmy server to check for performance.
 
 Uses PostgreSQL pg_stat_statements to get query counts and [perf](https://perf.wiki.kernel.org/index.php/Main_Page) to build flame graphs.
